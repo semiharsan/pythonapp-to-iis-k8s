@@ -49,7 +49,7 @@ Create-LogPath
 
 function Create-AppPool
 {
-    if ( !(Test-Path "IIS:\AppPools\$SiteName"))
+    if (!(Test-Path "IIS:\AppPools\$SiteName"))
     {
         Write-Output "Creating Application pool: $SiteName"
         New-WebAppPool -Name $SiteName
