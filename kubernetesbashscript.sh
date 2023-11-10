@@ -52,7 +52,7 @@ else
     echo "There is already a config file, let us remove it first"
     rm $HOSTCONFIGFILE
 fi
-envsubst '$IISSERVERIP,$NGINXSVCIP,$HOSTNAME' < pythondemo.arsit.tech.conf > $HOSTCONFIGFILE
+envsubst '$IISSERVERIP,$NGINXSVCIP,$HOSTNAME' < appconfigfile.conf > $HOSTCONFIGFILE
 echo "let us look at host config file"
 cat $HOSTCONFIGFILE
 service nginx restart
