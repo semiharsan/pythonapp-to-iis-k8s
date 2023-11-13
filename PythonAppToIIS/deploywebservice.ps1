@@ -88,7 +88,25 @@ function Create-Or-Update-WebSite
 	New-WebSite -Name $SiteName -Port 80 -HostHeader $HostName -PhysicalPath $SitePath -ApplicationPool $SiteName 
 	Set-ItemProperty IIS:\Sites\$SiteName -name logFile.directory -value $LogPath
         Set-ItemProperty IIS:\Sites\$SiteName -name logFile.logExtFileFlags -value "BytesRecv, BytesSent, ClientIP, ComputerName, Date, Host, HttpStatus, HttpSubStatus, Method, ProtocolVersion, Referer, ServerIP, ServerPort, SiteName, Time, TimeTaken, UriQuery, UriStem, UserAgent, UserName, Win32Status"
-        Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/site[@name='$SiteName']/logFile/customFields" -name "." -value @{logFieldName='X-Real-IP';sourceName='X-Real-IP';sourceType='RequestHeader'}
     }
 }
 Create-Or-Update-WebSite
+
+function Add-XReal-IP-Custom-Logging {
+
+    $logSettings=Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/sites/site[@name='$SiteName']/logFile/customFields" -name "."
+    $customFieldExists=$logSettings.Collection | Where-Object {$_.Attributes["logFieldName"].Value -eq 'X-Real-IP'}
+    $logFieldName=$customFieldExists.logFieldName
+    Write-Output "Custom Field Log Name : $logFieldName"
+
+   if ($logFieldName -ne "X-Real-IP") 
+   {
+        Write-Output "Adding X-Real-IP custom field to the existing log settings for site: $SiteName"
+        Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/sites/site[@name='$SiteName']/logFile/customFields" -name "." -value @{logFieldName='X-Real-IP';sourceName='X-Real-IP';sourceType='RequestHeader'}
+    }
+    else 
+    {
+        Write-Output "Custom field 'X-Real-IP' already exists in the log settings for site: $SiteName"
+    }
+    }
+Add-XReal-IP-Custom-Logging
